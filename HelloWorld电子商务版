@@ -1,0 +1,260 @@
+using System;
+using System . Collections;
+using System . Collections . Generic;
+using System . Linq;
+using static System . Net . Mime . MediaTypeNames;
+
+namespace _001HelloWorld的电子商务版本
+{
+   class Program
+   {
+      static void Main()
+      {
+         var productList = Product2 . GetSimpleProducts();
+         var supplierList = Supplier . GetSimpleSuppliers();
+         #region C#的语言版本 不断地重构演示  排序过程 
+         //productList . Sort(new ProductNameCompare2());
+         //productList . Sort(delegate (Product2 theLeft , Product2 theRight)
+         //{
+         //   return theLeft . Name . CompareTo(theRight . Name);
+         //});
+         //productList . Sort((Product2 theLeft , Product2 theRight) => theLeft . Name . CompareTo(theRight . Name));
+         //productList . OrderBy(product => product . Name); 
+         #endregion
+
+         #region C#的语言版本 不断地重构演示 查询过程
+         //foreach ( Product2 product in productList )
+         //{
+         //   if ( product . Price>10 )
+         //   {
+         //      Console . WriteLine(product);
+         //   }
+         //}
+
+         //productList . FindAll(product => product . Price>10) . ForEach(product =>
+         //{
+         //   Console . WriteLine(product);
+         //});
+
+         //foreach ( Product2 product in productList . Where(product => product . Price>10) )
+         //{
+         //   Console . WriteLine(product);
+         //}
+
+         //foreach ( var product in productList . Where(product => !product . Price . HasValue) )
+         //{
+         //   Console . WriteLine(product);
+         //}
+         #endregion
+
+         #region C#的语言版本 不断地重构演示  LINQ查询过程
+         //var result =
+         //   from Product2 product in productList
+         //   where product . Price>10
+         //   select product;
+         //foreach ( Product2 prodcut in result )
+         //{
+         //   Console . WriteLine(prodcut);
+         //}
+
+         #region 复杂的linq语句
+         //var result =
+         //      from product in productList
+         //      join supplier in supplierList on product . Supplier . SupplierId equals supplier . SupplierId
+         //      select new
+         //      {
+         //         supplierInstance = supplier ,
+         //         productInstance = product ,
+         //         groupResult =
+         //         from supplierName in supplierList
+         //         group supplier . Name by supplier into supplierGroup
+         //         select new
+         //         {
+         //            Item = supplierGroup . Key ,
+         //            Count = supplierGroup . Count()
+         //         }
+         //      };
+         //foreach ( var item in result )
+         //{
+         //   foreach ( var key in item . groupResult )
+         //   {
+         //      Console . WriteLine(key . Item+"     "+key . Count);
+         //   }
+         //   Console . WriteLine("供货商名称："+item . supplierInstance . Name+"     产品信息："+item . productInstance . Name);
+         //} 
+         #endregion
+
+         #endregion
+
+         #region 通过LINQ读取从Xml文件中的产品数据信息
+         //var xDocument = XDocument . Load("SimpleProductWithSupplier.xml");
+         //var productWithSupplierRootNode = xDocument . Root;
+         //var prodcutsNode = productWithSupplierRootNode . XPathSelectElement("Products");
+         //var suppliersNode = productWithSupplierRootNode . XPathSelectElement("Suppliers");
+         //var result =
+         //   from product in prodcutsNode . Elements("Product")
+         //   join supplier in suppliersNode . Elements($"Supplier") on product . Attribute("SupplierId") . Value equals supplier . Attribute("SupplierId") . Value
+         //   select new
+         //   {
+         //      SupplierInstanceName = supplier . Attribute("Name") . Value ,
+         //      ProductInstanceName = product . Attribute("Name") . Value ,
+         //      ProductInstancePrice = product . Attribute("Price") . Value
+         //   };
+         //foreach ( var item in result )
+         //{
+         //   Console . WriteLine(item . SupplierInstanceName+"   "+item . ProductInstanceName+"  "+item . ProductInstancePrice . ToString());
+         //}
+         #endregion
+
+         #region 通过LINQ读取数据库中的产品数据信息
+
+         #endregion
+
+         #region 与Com组件互操作
+
+         #endregion
+
+         Console . ReadKey();
+      }
+   }
+   public class Supplier
+   {
+      private string _name;
+      private int _supplierId;
+      public string Name { get { return this . _name; } private set { this . _name=value; } }
+      public int SupplierId { get { return this . _supplierId; } private set { this . _supplierId=value; } }
+      public Supplier(int id , string name) { this . SupplierId=id; this . Name=name; }
+      public static List<Supplier> GetSimpleSuppliers()
+      {
+         return new List<Supplier>
+         {
+            new Supplier(1,"张三"),
+            new Supplier(2,"李四"),
+            new Supplier(3,"王五"),
+            new Supplier(4,"赵六"),
+         };
+      }
+      public override string ToString()
+      {
+         return this . Name+"   "+this . SupplierId . ToString();
+      }
+   }
+   public class ProductNameCompare1 : IComparer
+   {
+      public int Compare(object x , object y)
+      {
+         var product1 = (Product1) x;
+         var product2 = (Product1) y;
+         return product1 . Name . CompareTo(product2 . Name);
+      }
+   }
+   public class ProductNameCompare2 : IComparer<Product2>
+   {
+      public int Compare(Product2 theLeft , Product2 theRight)
+      {
+         return theLeft . Name . CompareTo(theRight . Name);
+      }
+   }
+   public class Product1
+   {
+      private string _name;
+      private decimal _price;
+      public string Name { get { return this . _name; } set { this . _name=value; } }
+      public decimal Price { get { return this . _price; } set { this . _price=value; } }
+      public static ArrayList GetSimpleProducts()
+      {
+         return new ArrayList {
+            new Product1("熊火腿" , 22),
+            new Product1("熊火腿" , 22),
+            new Product1("熊火腿" , 22),
+            new Product1("熊火腿" , 22),
+         };
+      }
+      public Product1(string name , decimal price)
+      {
+         this . Name=name;
+         this . Price=price;
+      }
+      public override string ToString() { return this . Name+"   "+this . Price . ToString(); }
+   }
+   public class Product2
+   {
+      private string _name;
+      private decimal? _price;
+      private Supplier _supplier;
+      public string Name
+      {
+         get { return this . _name; }
+         private set { this . _name=value; }
+      }
+      public decimal? Price
+      {
+         get { return this . _price; }
+         private set { this . _price=value; }
+      }
+      public Supplier Supplier
+      {
+         get
+         {
+            return this . _supplier;
+         }
+         set
+         {
+            this . _supplier=value;
+         }
+      }
+      public static List<Product2> GetSimpleProducts()
+      {
+         return new List<Product2>
+         {
+            new Product2("小火腿" , 22){ Supplier=new Supplier(1,"张三") } ,
+            new Product2("红火腿" , 22) { Supplier=new Supplier(2,"李四") } ,
+            new Product2("金火腿" , 22) { Supplier=new Supplier(1,"张三") } ,
+            new Product2("绿火腿" , 22){ Supplier=new Supplier(2,"李四") }  ,
+            new Product2("字火腿" , 22){ Supplier=new Supplier(1,"张三") }  ,
+            new Product2("哈哈哈火腿" , 22) { Supplier=new Supplier(2,"李四") } ,
+            new Product2("金刚小火腿" , 22){ Supplier=new Supplier(1,"张三") }  ,
+            new Product2("666小火腿" , 22){ Supplier=new Supplier(3,"王五") } ,
+            new Product2("可空类型的小火腿" ){ Supplier=new Supplier(1,"张三") } ,
+            new Product2("可空类型的小火腿一号出国了" ){ Supplier=new Supplier(4,"赵六") } ,
+         };
+      }
+      public Product2(string name , decimal? price = null)
+      {
+         this . Name=name;
+         this . Price=price;
+      }
+      public override string ToString()
+      {
+         return this . Name+" "+this . Price . ToString();
+      }
+   }
+   public class Product3
+   {
+      private readonly string _name;
+      private readonly decimal _price;
+      public string Name
+      {
+         get { return this . _name; }
+      }
+      public decimal Price
+      {
+         get { return this . _price; }
+      }
+      public static List<Product3> GetSimpleProducts()
+      {
+         return new List<Product3> {
+            new Product3("熊火腿" , 22),
+            new Product3("熊火腿" , 22),
+            new Product3("熊火腿" , 22),
+            new Product3("熊火腿" , 22),
+         };
+      }
+      public Product3(string name , decimal price)
+      {
+         this . _name=name;
+         this . _price=price;
+      }
+      public override string ToString() { return this . Name+"   "+this . Price . ToString(); }
+   }
+}
